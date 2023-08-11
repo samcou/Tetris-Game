@@ -16,6 +16,27 @@ const continueButton = document.getElementById("continue-btn"); // Continue butt
 const restartButton = document.getElementById("restart-btn"); // Restart Button
 const pauseButton = document.getElementById("pause-btn"); // Pause button
 
+const music = document.getElementById("gameMusic");
+
+function startMusic() {
+    music.play();
+}
+
+function pauseMusic() {
+    music.pause();
+}
+
+let gameMusic = document.getElementById('gameMusic');
+
+document.getElementById('playMusic').addEventListener('click', function() {
+    gameMusic.play();
+});
+
+document.getElementById('pauseMusic').addEventListener('click', function() {
+    gameMusic.pause();
+});
+
+// You can start the music when the game starts and pause when the game is paused.
 
 pauseButton.addEventListener("click", pauseGame);
 continueButton.addEventListener("click", continueGame)
@@ -60,16 +81,18 @@ function startGame() {
 
 function pauseGame() {
   isPaused = true;
+  gameMusic.pause();  // pause the music
   clearInterval(intervalId);
   pauseMenu.classList.remove("hidden");
 }
 
+
 function continueGame() {
   console.log("Continue game function called!");
   isPaused = false;
+  gameMusic.play()
   intervalId = setInterval(updateGame, GAME_SPEED);
   pauseMenu.classList.add("hidden");
-  continueButton.classList.add("hidden");
   renderBoard();
 }
 
