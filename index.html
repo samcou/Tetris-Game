@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tetris Game</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="tetris-board"></div> <!--i guess what happens in this div all javascript-->
+      <div id="score">Score: <span id="score-value">0</span></div>
+      <div id="timer">Time: <span id="timer-value">0</span></div>
+      <div id="lives">Lives: <span id="lives-value">0</span></div>
+    </div>
+    <div id="pause-menu" class="hidden">
+      <button id="continue-btn" class="hidden">Continue</button>
+      <button id="restart-btn">Restart</button>
+    </div>
+
+    <button id="pause-btn">Pause</button>
+
+    <script src="game.js"></script>
+  </body>
+</html>
+
