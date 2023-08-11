@@ -5,42 +5,31 @@ const SQUARE_SIZE = 30;
 const GAME_SPEED = 500; // milliseconds
 const MAX_LIVES = 3;
 
-// Game Elements
-const gameContainer = document.getElementById("game-container");
-const tetrisBoard = document.getElementById("tetris-board");
-const scoreElement = document.getElementById("score-value");
-const timerElement = document.getElementById("timer-value");
-const livesElement = document.getElementById("lives-value");
-const pauseMenu = document.getElementById("pause-menu");
-const continueButton = document.getElementById("continue-btn");
-const restartButton = document.getElementById("restart-btn");
-const pauseButton = document.getElementById("pause-btn");
+// Game Elements 
+const gameContainer = document.getElementById("game-container"); // Game container
+const tetrisBoard = document.getElementById("tetris-board"); // Tetris board
+const scoreElement = document.getElementById("score-value"); // Score
+const timerElement = document.getElementById("timer-value"); // Timer
+const livesElement = document.getElementById("lives-value"); // Number of Lives left
+const pauseMenu = document.getElementById("pause-menu"); // Pause menu
+const continueButton = document.getElementById("continue-btn"); // Continue button
+const restartButton = document.getElementById("restart-btn"); // Restart Button
+const pauseButton = document.getElementById("pause-btn"); // Pause button
 
 
 pauseButton.addEventListener("click", pauseGame);
 continueButton.addEventListener("click", continueGame)
 
 const TETROMINOS = [
-    { shape: [[1, 1, 1, 1]], color : 1 },              // I-shape
-    { shape: [[1, 1], [1, 1]], color : 2 },            // O-shape
-    { shape: [[1, 1, 1], [0, 1, 0]], color : 3 },      // T-shape
-    { shape: [[1, 1, 0], [0, 1, 1]], color : 4 },      // S-shape
-    { shape: [[0, 1, 1], [1, 1, 0]], color : 5 },      // Z-shape
-    { shape: [[1, 1, 1], [0, 0, 1]], color : 6 },      // J-shape
-    { shape: [[1, 1, 1], [1, 0, 0]], color : 7 },      // L-shape
+  { shape: [[1, 1, 1, 1]], color : 1 },              // I-shape
+  { shape: [[2, 2], [2, 2]], color : 2 },            // O-shape
+  { shape: [[3, 3, 3], [0, 3, 0]], color : 3 },      // T-shape
+  { shape: [[4, 4, 0], [0, 4, 4]], color : 4 },      // S-shape
+  { shape: [[0, 5, 5], [5, 5, 0]], color : 5 },      // Z-shape
+  { shape: [[6, 6, 6], [0, 0, 6]], color : 6 },      // J-shape
+  { shape: [[7, 7, 7], [7, 0, 0]], color : 7 },      // L-shape
 ];
 
-const COLORS = {
-    0: "transparent",  // Empty cell color
-    1: "cyan",         // I-shape color
-    2: "yellow",       // O-shape color
-    3: "purple",       // T-shape color
-    4: "green",        // S-shape color
-    5: "red",          // Z-shape color
-    6: "blue",         // J-shape color
-    7: "orange",       // L-shape color
-};
- 
 let score = 0;
 let timer = 0;
 let lives = 3;
@@ -393,37 +382,43 @@ function spawnNewTetromino() {
 }
 
 function renderBoard() {
+  // Clear the previous state of the board in the HTML.
   tetrisBoard.innerHTML = "";
 
+  // Iterate over each row of the board.
   for (let row = 0; row < BOARD_HEIGHT; row++) {
-    for (let col = 0; col < BOARD_WIDTH; col++) {
-      let cellValue = board[row][col];
-      console.log(board[row][col], "apparentl value")
-      let cellColor = COLORS[cellValue];
+      // Iterate over each column in the current row.
+      for (let col = 0; col < BOARD_WIDTH; col++) {
+          // Get the value of the current cell.
+          // This value corresponds to the type of block (or Tetromino).
+          let cellValue = board[row][col];
 
+          // If there's a currently active Tetromino, we check if 
+          // the current cell is part of that Tetromino.
+          if (currentTetromino) {
+              const { x, y, shape } = currentTetromino;
+              
+              // Check if the cell is within the bounds of the current Tetromino.
+              if (row >= y && row < y + shape.length && col >= x && col < x + shape[0].length) {
+                  // Update the cell value if it's part of the Tetromino.
+                  cellValue = shape[row - y][col - x] !== 0 ? shape[row - y][col - x] : cellValue;
+              }
+          }
 
-      if (currentTetromino) {
-        console.log(currentTetromino, "this the current tetromino")
-        const { x, y, shape } = currentTetromino;
-        if (row >= y && row < y + shape.length && col >= x && col < x + shape[0].length) {
-          cellValue = shape[row - y][col - x] !== 0 ? shape[row - y][col - x] : cellValue;
-          cellColor = COLORS[cellValue];
-          console.log("cell2:", cellValue)
-          console.log("cell2:", cellColor)
+          // Determine the class for the cell based on its value.
+          // Cells with a value of 0 are empty, others are filled.
+          const cellClass = cellValue === 0 ? "empty" : "filled";
+          // Create a class based on the cell's value to apply the appropriate color.
+          const colorClass = `color-${cellValue}`;
 
-        }
+          // Create a new div element to represent the cell.
+          const cellElement = document.createElement("div");
+          // Add the default "cell" class, as well as the determined class (either "empty" or "filled").
+          cellElement.classList.add("cell", cellClass, colorClass);
+
+          // Append the cell to the Tetris board in the HTML.
+          tetrisBoard.appendChild(cellElement);
       }
-
-      const cellClass = cellValue === 0 ? "empty" : "filled";
-  //    console.log("Cell Value:", cellValue, "Cell Color:", cellColor); // Debugging line
-
-
-      const cellElement = document.createElement("div");
-      cellElement.classList.add("cell", cellClass);
-      cellElement.style.backgroundColor = cellColor;
-
-      tetrisBoard.appendChild(cellElement);
-    }
   }
 }
 
