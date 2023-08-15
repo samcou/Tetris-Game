@@ -81,6 +81,14 @@
     background-color: #f44336;
 }
 
+#continue-btn.hidden {
+    display: none;
+}
+
+#restart-btn.hidden {
+    display: none;
+}
+
 #pause-btn {
     color: #000;
     background-color: rgb(255, 0, 247);

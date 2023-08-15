@@ -84,6 +84,8 @@ function pauseGame() {
   gameMusic.pause();  // pause the music
   clearInterval(intervalId);
   pauseMenu.classList.remove("hidden");
+  continueButton.classList.remove("hidden")
+  restartButton.classList.remove("hidden")
 }
 
 
@@ -338,15 +340,17 @@ function handleGameOver() {
   isPaused = true;
   pauseMenu.classList.remove("hidden");
   
-  if (lives !== 0) {
+  if (lives > 1) {
     // If there are lives left, show the "Continue" button and decrement lives
     continueButton.classList.remove("hidden");
+    restartButton.classList.add("hidden")
     console.log(lives, "remaining lives")
     resetBoard()
     lives--;
   } else {
     // If no lives left, show the "Restart" button and handle the game over
-    startGame();
+    restartButton.classList.remove("hidden")
+    continueButton.classList.add("hidden")
     console.log("Game Over");
   }
   
