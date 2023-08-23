@@ -3,7 +3,20 @@ const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
 const SQUARE_SIZE = 30;
 const GAME_SPEED = 500; // milliseconds
-const MAX_LIVES = 3;
+const MAX_LIVES = 2;
+let difficultyLevel = 1;
+let scoreMultiplier = 1;
+let lastFrameTime = performance.now();
+let frameCount = 0;
+let totalFrames = 0;
+let lastUpdateTime = performance.now();
+let musicBool = false;
+let lastLogicUpdateTime = performance.now();
+const MAX_FRAMES_FOR_FPS = 60;
+const frameTimestamps = [];
+let lastUpdateTimestamp = 0;
+const TARGET_DELTA_TIME = 1000 / 60;  // targeting 60 FPS
+let check = false;
 
 // Game Elements 
 const gameContainer = document.getElementById("game-container"); // Game container
@@ -20,20 +33,24 @@ const music = document.getElementById("gameMusic");
 
 function startMusic() {
     music.play();
+    musicBool = true;
 }
 
 function pauseMusic() {
     music.pause();
+    musicBool = false;
 }
 
 let gameMusic = document.getElementById('gameMusic');
 
 document.getElementById('playMusic').addEventListener('click', function() {
     gameMusic.play();
+    musicBool = true;
 });
 
 document.getElementById('pauseMusic').addEventListener('click', function() {
     gameMusic.pause();
+    musicBool = false;
 });
 
 // You can start the music when the game starts and pause when the game is paused.
@@ -72,7 +89,6 @@ let intervalId = null;
 let lastRenderTime = 0;
 
 function startGame() {
-  intervalId = setInterval(updateGame, GAME_SPEED);
   console.log("game started")
   initializeGame();
   lastRenderTime = performance.now();
@@ -81,19 +97,27 @@ function startGame() {
 
 function pauseGame() {
   isPaused = true;
-  gameMusic.pause();  // pause the music
+  if(musicBool){
+    pauseMusic(); // pause the music
+    check = true;  // Remember that the music was playing
+  }
   clearInterval(intervalId);
   pauseMenu.classList.remove("hidden");
-  continueButton.classList.remove("hidden")
-  restartButton.classList.remove("hidden")
+  continueButton.classList.remove("hidden");
+  restartButton.classList.remove("hidden");
 }
 
-
 function continueGame() {
+  if(check === true){
+    gameMusic.play();  // Resume the music if it was playing
+    check = false;  // Reset the check variable
+  }
+
+  lastFrameTime = performance.now();
+  lastLogicUpdateTime = performance.now();
   console.log("Continue game function called!");
   isPaused = false;
-  gameMusic.play()
-  intervalId = setInterval(updateGame, GAME_SPEED);
+  requestAnimationFrame(updateGame);
   pauseMenu.classList.add("hidden");
   renderBoard();
 }
@@ -104,36 +128,78 @@ function restartGame() {
   intervalId = setInterval(updateGame, GAME_SPEED);
 }
 
-function updateGame(timestamp) {
-    if (!isPaused) {
-      // Calculate the time elapsed since the last render
-      const timeSinceLastRender = timestamp - lastRenderTime;
-  
-      // Only update the game if enough time has passed (aiming for 60 FPS)
-      if (timeSinceLastRender >= GAME_SPEED) {
-        // Update game logic
-        timer++;
-        moveTetrominoDown();
-        checkLineClears();
-  
-        // Check for game over
-        if (isGameOver()) {
-          handleGameOver();
-          return;
-        }
-  
-        lastRenderTime = timestamp;
-      }
-    }
-  
-    renderBoard();
-    scoreElement.textContent = score;
-    timerElement.textContent = timer;
-    livesElement.textContent = lives;
-  
-    requestAnimationFrame(updateGame);
+function updateGameSpeed() {
+  // Increase speed of game
+  const newSpeed = Math.max(100, GAME_SPEED - difficultyLevel * 50);
+  clearInterval(intervalId);
+  intervalId = setInterval(updateGame, newSpeed);
+  lastFrameTime = performance.now(); // Reset FPS calculation after changing speed
+  lastLogicUpdateTime = performance.now(); // Reset game logic update time after changing speed
+}
+
+function updateScoreMultiplier() {
+  // increase scoremultiplier by 0.1 for every difficulty level
+  scoreMultiplier = 1 + difficultyLevel * 0.1;
+}
+function updateDifficulty() {
+  // Check if the score is greater than or equal to 1000 points
+  const newDifficultyLevel = Math.floor(score / 500) + 1;
+
+  if (newDifficultyLevel !== difficultyLevel) {
+    difficultyLevel = newDifficultyLevel;
+    // Update game speed and score multiplier based on the new difficulty level
+    updateGameSpeed();
+    updateScoreMultiplier();
   }
-  
+}
+
+
+function updateGame(timestamp) {
+  if (timestamp - lastUpdateTimestamp < TARGET_DELTA_TIME) {
+    requestAnimationFrame(updateGame);
+    return;
+}
+lastUpdateTimestamp = timestamp;
+  frameTimestamps.push(timestamp);
+  if (frameTimestamps.length > MAX_FRAMES_FOR_FPS) {
+      frameTimestamps.shift();
+  }
+
+  if (frameTimestamps.length > 1) {
+      const deltaTime = frameTimestamps[frameTimestamps.length - 1] - frameTimestamps[0];
+      const averageDeltaTime = deltaTime / (frameTimestamps.length - 1);
+      const fps = 1000 / averageDeltaTime;
+      document.getElementById('fps-display').textContent = Math.round(fps) + " FPS";
+  }
+  if (!isPaused) {
+      // Calculate the time elapsed since the last logic update
+      const timeSinceLastLogicUpdate = timestamp - lastLogicUpdateTime;
+
+      // Only update the game logic if enough time has passed (based on GAME_SPEED)
+      if (timeSinceLastLogicUpdate >= GAME_SPEED) {
+          // Update game logic
+          timer++;
+          moveTetrominoDown();
+          checkLineClears();
+
+          // Check for game over
+          if (isGameOver()) {
+              handleGameOver();
+              return;
+          }
+
+          lastLogicUpdateTime = timestamp;
+      }
+  }
+
+  renderBoard();
+  scoreElement.textContent = score;
+  timerElement.textContent = timer;
+  livesElement.textContent = lives;
+
+  requestAnimationFrame(updateGame);
+}
+
 
   function moveTetrominoDown() {
     if (canMoveTetromino(0, 1)) {
@@ -155,23 +221,24 @@ function updateGame(timestamp) {
   }
   
 
-function checkLineClears() {
-  let clearedLines = 0;
-
-  for (let row = BOARD_HEIGHT - 1; row >= 0; row--) {
-    if (board[row].every((cell) => cell !== 0)) {
-      // Clear the line
-      board.splice(row, 1);
-      board.unshift(Array(BOARD_WIDTH).fill(0));
-      clearedLines++;
+  function checkLineClears() {
+    let clearedLines = 0;
+  
+    for (let row = BOARD_HEIGHT - 1; row >= 0; row--) {
+      if (board[row].every((cell) => cell !== 0)) {
+        // Clear the line
+        board.splice(row, 1);
+        board.unshift(Array(BOARD_WIDTH).fill(0));
+        clearedLines++;
+      }
+    }
+  
+    // Update score based on cleared lines
+    if (clearedLines > 0) {
+      score += calculateScore(clearedLines);
+      updateDifficulty(); // Call updateDifficulty every time the score changes
     }
   }
-
-  // Update score based on cleared lines
-  if (clearedLines > 0) {
-    score += calculateScore(clearedLines);
-  }
-}
 
 function calculateScore(clearedLines) {
   // Calculate score based on the number of cleared lines

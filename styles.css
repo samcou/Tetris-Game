@@ -1,3 +1,9 @@
+/* body {
+    background-image: url('maxresdefault.jpeg');
+    background-size: cover; 
+    background-repeat: no-repeat; 
+} */
+
 #game-container {
     display: flex;
     flex-direction: column;
@@ -35,6 +41,12 @@
 .cell.color-5 { background-color: red; }
 .cell.color-6 { background-color: blue; }
 .cell.color-7 { background-color: orange; }
+
+.cell.filled {
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Adjust values as needed */
+    border: 1.5px groove #000;
+    border-radius: 2.5px;
+}
 
 #score,
 #timer,
