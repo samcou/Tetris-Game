@@ -12,7 +12,18 @@ body {
     background-color: transparent;
     color: #000;
 }
- 
+@keyframes flash {
+    0% { opacity: 0.5; } 
+    50% { opacity: 1; }
+    100% { opacity: 0.5; } 
+}
+
+.flash {
+    animation: flash 1s;
+}
+
+
+
 #tetris-board {
     display: grid;
     grid-template-columns: repeat(var(--board-width), 1fr);

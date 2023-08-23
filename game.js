@@ -219,26 +219,58 @@ lastUpdateTimestamp = timestamp;
       renderBoard();
     }
   }
-  
+  // sets random colour for line flash
+  function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function playEffects(times) {
+  if (times <= 0) return;
+
+  // Visual feedback: Flash animation
+  tetrisBoard.style.backgroundColor = getRandomColor();  // set a random background color
+  tetrisBoard.classList.add('flash');
+  setTimeout(() => {
+      tetrisBoard.classList.remove('flash');
+      tetrisBoard.style.backgroundColor = "";  // reset background color
+  }, 500);  // remove the class after the animation duration
+
+  // Auditory feedback: Play sound
+  const sound = document.getElementById('clearLineSound');
+  sound.play();
+
+  // Delay the next iteration to give time for effects to finish
+  setTimeout(() => playEffects(times - 1), 600);
+}
+
+
 
   function checkLineClears() {
     let clearedLines = 0;
   
     for (let row = BOARD_HEIGHT - 1; row >= 0; row--) {
-      if (board[row].every((cell) => cell !== 0)) {
-        // Clear the line
-        board.splice(row, 1);
-        board.unshift(Array(BOARD_WIDTH).fill(0));
-        clearedLines++;
-      }
+        if (board[row].every((cell) => cell !== 0)) {
+            // Clear the line
+            board.splice(row, 1);
+            board.unshift(Array(BOARD_WIDTH).fill(0));
+            clearedLines++;
+        }
     }
-  
+
+    // Call the playEffects function with the number of cleared lines
+    playEffects(clearedLines);
+
     // Update score based on cleared lines
     if (clearedLines > 0) {
-      score += calculateScore(clearedLines);
-      updateDifficulty(); // Call updateDifficulty every time the score changes
+        score += calculateScore(clearedLines);
+        updateDifficulty(); // Call updateDifficulty every time the score changes
     }
-  }
+}
 
 function calculateScore(clearedLines) {
   // Calculate score based on the number of cleared lines
