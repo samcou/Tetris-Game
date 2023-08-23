@@ -1,8 +1,8 @@
-/* body {
-    background-image: url('maxresdefault.jpeg');
+body {
+    background-image: url('1219.jpg');
     background-size: cover; 
     background-repeat: no-repeat; 
-} */
+}
 
 #game-container {
     display: flex;
