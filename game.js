@@ -16,7 +16,7 @@ const MAX_FRAMES_FOR_FPS = 60;
 const frameTimestamps = [];
 let lastUpdateTimestamp = 0;
 const TARGET_DELTA_TIME = 1000 / 60;  // targeting 60 FPS
-let check = false;
+let check = false; // used for determining if music playing when paused
 
 // Game Elements 
 const gameContainer = document.getElementById("game-container"); // Game container
@@ -29,7 +29,28 @@ const continueButton = document.getElementById("continue-btn"); // Continue butt
 const restartButton = document.getElementById("restart-btn"); // Restart Button
 const pauseButton = document.getElementById("pause-btn"); // Pause button
 
-const music = document.getElementById("gameMusic");
+
+const titleScreen = document.getElementById('titleScreen');
+const startButton = document.getElementById('startButton');
+
+
+// Event listener to start game with Enter key
+document.addEventListener('keydown', function(event) {
+    if (event.key === "Enter") {
+        startGame();
+    }
+});
+document.addEventListener('DOMContentLoaded', (event) => {
+  const titleScreen = document.getElementById('titleScreen');
+  const startButton = document.getElementById('startButton');
+
+  startButton.addEventListener('click', startGame);
+  document.addEventListener('keydown', function(event) {
+      if (event.key === "Enter") {
+          startGame();
+      }
+  });
+});
 
 function startMusic() {
     music.play();
@@ -57,6 +78,7 @@ document.getElementById('pauseMusic').addEventListener('click', function() {
 
 pauseButton.addEventListener("click", pauseGame);
 continueButton.addEventListener("click", continueGame)
+
 
 const TETROMINOS = [
   { shape: [[1, 1, 1, 1]], color : 1 },              // I-shape
@@ -89,7 +111,9 @@ let intervalId = null;
 let lastRenderTime = 0;
 
 function startGame() {
-  console.log("game started")
+  titleScreen.style.display = 'none'; // Hide title screen
+  document.getElementById('game-container').style.display = 'flex'; // Show game container
+  console.log("game started");
   initializeGame();
   lastRenderTime = performance.now();
   requestAnimationFrame(updateGame);
@@ -552,5 +576,5 @@ function renderBoard() {
 // Event Listeners
 document.addEventListener("keydown", handleKeyPress);
 
-// Start the game
-startGame();
+// // Start the game
+// startGame();
