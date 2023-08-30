@@ -151,3 +151,58 @@ body {
     color: #000;
     background-color: rgb(255, 0, 247);
 }
+
+/* Leaderboard container styles */
+#leaderboard-container {
+    display: none; /* Initially hidden */
+    position: absolute; /* Absolute positioning to overlay on the game */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8); /* semi-transparent black */
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    z-index: 20; /* Ensure it's on top of other elements */
+    width: 50%; /* Use a percentage width to make it responsive */
+    max-width: 400px; /* Set a max width for very wide screens */
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* Leaderboard title styles */
+#leaderboard-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Leaderboard table styles */
+#leaderboard-list {
+    width: 100%;
+    border-collapse: collapse;
+    list-style-type: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+}
+
+#leaderboard-list li {
+    display: table-row; /* Rows of our table */
+}
+
+#leaderboard-list li:nth-child(odd) {
+    background-color: rgba(255, 255, 255, 0.1); /* Slight white for every alternate row */
+}
+
+#leaderboard-list li span {
+    display: table-cell; /* Cells of our table */
+    padding: 8px 12px; /* Padding for cells */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Slight white border for cells */
+}
+
+/* To display names and scores in two separate columns */
+#leaderboard-list li span:nth-child(1) {
+    width: 70%; 
+}
+
+#leaderboard-list li span:nth-child(2) {
+    width: 30%; 
+    text-align: right;
+}

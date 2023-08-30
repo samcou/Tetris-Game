@@ -456,30 +456,65 @@ function rotateShape(shape) {
 restartButton.addEventListener("click", restartGame);
 
 
-
-
-function handleGameOver() {
+async function handleGameOver() {
   clearInterval(intervalId);
   isPaused = true;
   pauseMenu.classList.remove("hidden");
-  
+
   if (lives > 1) {
-    // If there are lives left, show the "Continue" button and decrement lives
-    continueButton.classList.remove("hidden");
-    restartButton.classList.add("hidden")
-    console.log(lives, "remaining lives")
-    resetBoard()
-    lives--;
+      continueButton.classList.remove("hidden");
+      restartButton.classList.add("hidden");
+      console.log(lives, "remaining lives");
+      resetBoard();
+      lives--;
   } else {
-    // If no lives left, show the "Restart" button and handle the game over
-    restartButton.classList.remove("hidden")
-    continueButton.classList.add("hidden")
-    console.log("Game Over");
+      restartButton.classList.remove("hidden");
+      continueButton.classList.add("hidden");
+      console.log("Game Over");
+
+      let playerName = prompt("Enter your name for the leaderboard:");
+
+      if (playerName) {
+          try {
+              let response = await fetch(`http://localhost:3500/submit?name=${playerName}&score=${score}`, {
+                  method: 'POST'
+              });
+
+              if (!response.ok) {
+                  throw new Error('Failed to submit score.');
+              }
+
+              let data = await response.text();
+              console.log(data); // Logs the response to the server
+
+              response = await fetch("http://localhost:3500/leaderboard");
+
+              if (!response.ok) {
+                  throw new Error('Failed to fetch leaderboard.');
+              }
+
+              let leaderboard = await response.json();
+
+              const leaderboardList = document.getElementById('leaderboard-list');
+              leaderboardList.innerHTML = ''; // Clears previous entries
+
+              leaderboard.forEach(entry => {
+                  let listItem = document.createElement('li');
+                  listItem.textContent = `${entry.name}: ${entry.score}`;
+                  leaderboardList.appendChild(listItem);
+              });
+
+              document.getElementById('leaderboard-container').classList.remove('hidden');
+          } catch (error) {
+              console.error(error);
+          }
+      }
   }
-  
+
   tetrisBoard.innerHTML = "";
-  // Additional game over logic, e.g., displaying a message or resetting the game state 
+  // Additional game over logic, e.g., resetting the game state or showing a replay button
 }
+
 
 
 function resetBoard() {
