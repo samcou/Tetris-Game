@@ -138,7 +138,7 @@ function startGame() {
 function pauseGame() {
   isPaused = true;
   if(musicBool){
-    pauseMusic(); // pause the music
+    gameMusic.pause(); // pause the music
     check = true;  // Remember that the music was playing
   }
   clearInterval(intervalId);
