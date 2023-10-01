@@ -22,6 +22,7 @@ var scores []ScoreEntry
 func main() {
 	http.HandleFunc("/submit", corsMiddleware(submitHandler))
 	http.HandleFunc("/leaderboard", corsMiddleware(leaderboardHandler))
+	http.HandleFunc("/remove", corsMiddleware(removeHandler))
 
 	port := "3500"
 	if len(os.Args) > 1 {
@@ -124,4 +125,28 @@ func leaderboardHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonData)
+}
+
+func removeHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract the name parameter from the request query parameters
+	nameToRemove := r.URL.Query().Get("name")
+
+	// If no name is provided, return an error
+	if nameToRemove == "" {
+		http.Error(w, "Name parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	// Filter the scores slice to remove entries with the specified name
+	var newScores []ScoreEntry
+	for _, entry := range scores {
+		if entry.Name != nameToRemove {
+			newScores = append(newScores, entry)
+		}
+	}
+	scores = newScores
+
+	// Respond with a success message
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("All entries with name '%s' removed successfully", nameToRemove)))
 }
